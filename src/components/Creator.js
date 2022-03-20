@@ -44,17 +44,26 @@ const Creator = () => {
   }
 
   async function findAddress() {
-    await Contract.current.on("Created", (_addressOfToken) => {
-      setTokenAddress(_addressOfToken)
-    });
-  }
+    return new Promise((resolve) => {
+        Contract.current.on("Created", (_addressOfToken) => {
+          resolve(_addressOfToken);
+        });
+      });
+    }
 
   async function createToken() {
-    await contractWithSigner.current
-      .create(tokenName, tokenSymbol, tokenAmount)
-      .then(setShowCircular(true));
+    setShowCircular(true);
 
-    await findAddress();
+    await contractWithSigner.current.create(
+      tokenName,
+      tokenSymbol,
+      tokenAmount
+    );
+
+    const address = await findAddress();
+    setTokenAddress(address);
+    
+    setShowCircular(false);
   }
 
   return (
